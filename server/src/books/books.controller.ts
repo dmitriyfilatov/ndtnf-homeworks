@@ -8,8 +8,8 @@ import {
   Post,
   Put,
 } from '@nestjs/common';
-import FindOneParams from 'src/utils/find-one-params';
-import Book from './book.interface';
+import FindOneParams from '../utils/find-one-params';
+import { Book } from './book.model';
 import { BooksService } from './books.service';
 import CreateBookDto from './dto/create-book.dto';
 import UpdateBookDto from './dto/update-book.dto';
@@ -24,7 +24,7 @@ export class BooksController {
   }
 
   @Get(':id')
-  async getById(@Param() { id }: FindOneParams) {
+  async getById(@Param() { id }: FindOneParams): Promise<Book> {
     return this.booksService.getById(id);
   }
 
