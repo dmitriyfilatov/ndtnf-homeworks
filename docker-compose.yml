@@ -8,9 +8,8 @@ services:
         restart: always
         user: node
         working_dir: /app/server
-        environment:
-            - MONGODB_PORT=${MONGODB_PORT}
-            - MONGODB_HOST=${MONGODB_HOST}
+        env_file:
+            - .env
         volumes:
             - ./:/app:cached
         ports:

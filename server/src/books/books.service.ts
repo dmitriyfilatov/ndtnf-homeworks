@@ -27,7 +27,10 @@ export class BooksService {
       await book.save();
       return book;
     } catch (error) {
-      throw new HttpException('book not created', HttpStatus.BAD_REQUEST);
+      throw new HttpException(
+        `book not created: ${error._message}`,
+        HttpStatus.BAD_REQUEST,
+      );
     }
   }
 
