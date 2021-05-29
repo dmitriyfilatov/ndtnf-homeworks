@@ -9,7 +9,7 @@ import {
   Put,
   UseGuards,
 } from '@nestjs/common';
-import { JwtGuard } from 'src/users/jwt/jwt.guard';
+import { JwtGuard } from '../users/jwt/jwt.guard';
 import FindOneParams from '../utils/find-one-params';
 import { Book } from './book.model';
 import { BooksService } from './books.service';
@@ -17,7 +17,7 @@ import CreateBookDto from './dto/create-book.dto';
 import UpdateBookDto from './dto/update-book.dto';
 
 @Controller('books')
-@UseGuards(JwtGuard)
+// @UseGuards(JwtGuard)
 export class BooksController {
   constructor(private readonly booksService: BooksService) {}
 
