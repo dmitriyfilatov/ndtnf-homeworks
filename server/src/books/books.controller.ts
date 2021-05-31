@@ -22,12 +22,12 @@ export class BooksController {
   constructor(private readonly booksService: BooksService) {}
 
   @Get()
-  async getAll(): Promise<Book[]> {
+  async getAll() {
     return this.booksService.getAll();
   }
 
   @Get(':id')
-  async getById(@Param() { id }: FindOneParams): Promise<Book> {
+  async getById(@Param() { id }: FindOneParams) {
     return this.booksService.getById(id);
   }
 
@@ -47,7 +47,7 @@ export class BooksController {
   }
 
   @Delete(':id')
-  async delete(@Param() { id }: FindOneParams): Promise<boolean> {
+  async delete(@Param() { id }: FindOneParams) {
     return this.booksService.delete(id);
   }
 }

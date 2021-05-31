@@ -28,7 +28,7 @@ describe('BooksController', () => {
     update: (bookId, bookData) => {
       return book;
     },
-    delete: (bookId) => 'true'
+    delete: (bookId) => 'true',
   };
 
   beforeEach(async () => {

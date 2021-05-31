@@ -4,51 +4,69 @@ import UpdateBookDto from './dto/update-book.dto';
 import { InjectModel } from '@nestjs/mongoose';
 import { Book, BookDocument } from './book.model';
 import { Model } from 'mongoose';
+import { FirestoreService } from 'src/firestore/firestore.service';
 
 @Injectable()
 export class BooksService {
-  constructor(@InjectModel(Book.name) private BookModel: Model<BookDocument>) {}
+  constructor(
+    @InjectModel(Book.name) private BookModel: Model<BookDocument>,
+    private readonly firestoreService: FirestoreService,
+  ) {}
 
-  async getById(id: string): Promise<Book> {
-    const book = this.BookModel.findById(id).exec();
-    if (!book) {
-      throw new HttpException('book not found', HttpStatus.NOT_FOUND);
+  async getById(id: string) {
+    const ref = this.firestoreService.db.collection('books').doc(id);
+    const doc = await ref.get();
+
+    if (!doc.exists) {
+      throw new HttpException('book not created', HttpStatus.BAD_REQUEST);
     }
-    return book;
+
+    return doc.data();
   }
 
-  async getAll(): Promise<Book[]> {
-    return this.BookModel.find().exec();
+  async getAll() {
+    let allBooks = [];
+    const snapshot = await this.firestoreService.db.collection('books').get();
+    snapshot.forEach((doc) => {
+      allBooks.push(doc.data());
+    });
+
+    return allBooks;
   }
 
-  async create(bookData: CreateBookDto): Promise<Book> {
-    const book = new this.BookModel(bookData);
-    try {
-      await book.save();
-      return book;
-    } catch (error) {
-      throw new HttpException(
-        `book not created: ${error._message}`,
-        HttpStatus.BAD_REQUEST,
-      );
+  async create(bookData: CreateBookDto) {
+    const res = await this.firestoreService.db.collection('books').add({
+      ...bookData,
+    });
+
+    if (!res.id) {
+      throw new HttpException('book not created', HttpStatus.BAD_REQUEST);
     }
+
+    const ref = this.firestoreService.db.collection('books').doc(res.id);
+    const doc = await ref.get();
+
+    if (!doc.exists) {
+      throw new HttpException('book not created', HttpStatus.BAD_REQUEST);
+    }
+
+    return doc.data();
   }
 
-  async update(id: string, bookData: UpdateBookDto): Promise<Book> {
-    try {
-      await this.BookModel.findByIdAndUpdate(id, bookData);
-      return this.BookModel.findById(id).exec();
-    } catch (error) {
-      throw new HttpException('book not updated', HttpStatus.BAD_REQUEST);
+  async update(id: string, bookData: UpdateBookDto) {
+    const ref = this.firestoreService.db.collection('books').doc(id);
+    const doc = await ref.get();
+
+    if (!doc.exists) {
+      throw new HttpException('book not created', HttpStatus.BAD_REQUEST);
     }
+    await ref.update({ ...bookData });
+
+    return (await ref.get()).data();
   }
 
-  async delete(id: string): Promise<boolean> {
-    try {
-      const book = await this.BookModel.findByIdAndDelete(id);
-      return book ? true : false;
-    } catch (error) {
-      throw new HttpException('book not deleted', HttpStatus.BAD_REQUEST);
-    }
+  async delete(id: string) {
+    const ref = this.firestoreService.db.collection('books').doc(id);
+    return (await ref.delete()) ? true : false;
   }
 }
