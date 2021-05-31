@@ -54,11 +54,12 @@ export class UsersService {
       );
     }
 
+    const { firstName, lastName, _id } = user;
     await this.verifyPassword(password, user.hashedPassword);
     const secret = this.configService.get('JWT_SECRET');
     const expiresIn = this.configService.get('JWT_EXPIRATION_TIME');
-    const id = user._id
-    const payload = { id, email };
+    const id = _id;
+    const payload = { id, email, firstName, lastName };
     const token = this.jwtService.sign(payload, { secret, expiresIn });
     const cookie = `Authentication=${token}; Path=/; Max-Age=${expiresIn};`;
     request.res.setHeader('Set-Cookie', [cookie]);
