@@ -11,7 +11,7 @@ const database = process.env.MONGODB_DATABASE;
 @Module({
   imports: [
     MongooseModule.forRoot(`mongodb://${host}:${port}/${database}`),
-    BooksModule
+    BooksModule,
   ],
   controllers: [AppController],
   providers: [AppService],
