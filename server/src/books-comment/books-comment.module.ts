@@ -6,7 +6,9 @@ import { BooksCommentGateway } from './books-comment.gateway';
 
 @Module({
   imports: [
-    MongooseModule.forFeature([{ name: BookComment.name, schema: BookCommentSchema }]),
+    MongooseModule.forFeature([
+      { name: BookComment.name, schema: BookCommentSchema },
+    ]),
   ],
   providers: [BooksCommentService, BooksCommentGateway],
 })

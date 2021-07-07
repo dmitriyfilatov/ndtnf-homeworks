@@ -30,7 +30,7 @@
     "@nestjs/passport": "^7.1.5",
     "@nestjs/platform-express": "^7.6.15",
     "@nestjs/platform-socket.io": "^7.6.17",
-    "@nestjs/websockets": "^7.6.17",
+    "@nestjs/websockets": "^7.6.18",
     "@types/passport-jwt": "^3.0.5",
     "bcryptjs": "^2.4.3",
     "class-validator": "^0.13.1",

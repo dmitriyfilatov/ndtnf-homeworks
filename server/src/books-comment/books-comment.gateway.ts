@@ -1,34 +1,53 @@
-import { Logger } from '@nestjs/common';
 import {
+  MessageBody,
   SubscribeMessage,
   WebSocketGateway,
   WebSocketServer,
+  WsException,
+  WsResponse,
 } from '@nestjs/websockets';
-import { Server, Socket } from 'socket.io';
+import { Server } from 'socket.io';
 import { BooksCommentService } from './books-comment.service';
+import { from, Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
+import { BookComment } from './book-comment.model';
 
-@WebSocketGateway()
+@WebSocketGateway(80, { namespace: 'booksComments' })
 export class BooksCommentGateway {
-  constructor(private readonly booksCommentService: BooksCommentService) {}
   @WebSocketServer() server: Server;
-  private logger: Logger = new Logger('BooksCommentGateway');
 
-  @SubscribeMessage('message')
-  handleMessage(client: Socket, payload: string): void {
-    this.server.emit('msgToClient', payload);
+  constructor(private readonly booksCommentService: BooksCommentService) {}
+
+  handleConnection(){
+
   }
 
-  
+  @SubscribeMessage('addComment')
+  addComment(@MessageBody() data): Observable<WsResponse> {
+    return from(this.booksCommentService.create(data)).pipe(
+      map((res) => {
+        if (res === null) {
+          throw new WsException('Comment not created');
+        }
 
-  afterInit(server: Server) {
-    this.logger.log('Init');
+        return {
+          data: 'created',
+          event: 'addComment',
+        };
+      }),
+    );
   }
 
-  handleDisconnect(client: Socket) {
-    this.logger.log(`Client disconnected: ${client.id}`);
-  }
+  @SubscribeMessage('getAllComments')
+  getAllComments(@MessageBody() data): Observable<WsResponse<BookComment[]>> {
+    return from(this.booksCommentService.getAll(data)).pipe(
+      map((res) => {
+        if (res === null) {
+          throw new WsException('Comments not found');
+        }
 
-  handleConnection(client: Socket, ...args: any[]) {
-    this.logger.log(`Client connected: ${client.id}`);
+        return { event: 'getAllComments', data: res };
+      }),
+    );
   }
 }
