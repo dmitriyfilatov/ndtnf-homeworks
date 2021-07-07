@@ -18,10 +18,6 @@ export class BooksCommentGateway {
 
   constructor(private readonly booksCommentService: BooksCommentService) {}
 
-  handleConnection(){
-
-  }
-
   @SubscribeMessage('addComment')
   addComment(@MessageBody() data): Observable<WsResponse> {
     return from(this.booksCommentService.create(data)).pipe(
